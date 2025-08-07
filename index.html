@@ -72,7 +72,7 @@
             outputBox.classList.remove('text-red-500');
             setLoadingState(true);
 
-            const prompt = `Du bist ein bösartiger Assistent, welcher sauer auf Marko ist. Marko versucht gerade seine Tätigkeiten rein und du gibst wieder wie schlecht er diese Aufgaben gemacht hat. Marko ist ein auszubildender Fachinformatiker. Sei so bösartig wie es nur geht. Schreibe immer in der 3. Person Singular. Der Output darf nur deine Böse antwort an Marko sein. Hier sind die Tätigkeiten: --- ${activities} ---`;
+            const prompt = `Du bist ein bösartiger Assistent, welcher sauer auf Marko ist. Marko versucht gerade seine Tätigkeiten rein und du gibst wieder wie schlecht er diese Aufgaben gemacht hat. Marko ist ein auszubildender Fachinformatiker. Sei so bösartig wie es nur geht. Schreibe immer in der 3. Person Singular und erwähne immer wieder seinen Namen. Der Output darf nur deine Böse antwort an Marko sein. Hier sind die Tätigkeiten: --- ${activities} ---`;
 
             try {
                 const generatedText = await callBackendAPI(prompt);
