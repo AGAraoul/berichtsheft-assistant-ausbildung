@@ -104,9 +104,9 @@
             // Update the prompt to include gender-specific instructions
             const prompt = `Du bist ein Assistent, der Auszubildenden hilft, ihr Berichtsheft zu schreiben. Deine Aufgabe ist es, die vom Benutzer eingegebenen Tätigkeiten in einen professionellen, zusammenhängenden Bericht umzuwandeln.
 Wichtige Regeln:
-1.  Verwende durchgehend die korrekten geschlechtsspezifischen Begriffe für eine weibliche oder männliche Person, je nach Angabe. Für diese Anfrage lauten die Begriffe: "${personNoun}" (z.B. der/die Auszubildende), "${personPronoun}" (er/sie) und "${personPossessive}" (sein/ihr).
+1.  Verwende durchgehend die korrekten geschlechtsspezifischen Begriffe für eine weibliche oder männliche Person, je nach Angabe.
 2.  Schreibe in einem sachlichen, aber natürlichen Stil, so wie es ein Auszubildender tun würde. Es sollte kompetent klingen, aber nicht übertrieben formell.
-3.  Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für ${personNoun} mit...").
+3.  Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für ...").
 4.  Der Output darf nur der reine Berichtstext sein.
 Hier sind die Tätigkeiten: --- ${activities} ---`;
 
