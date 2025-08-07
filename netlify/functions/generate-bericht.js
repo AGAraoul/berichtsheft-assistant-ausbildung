@@ -1,13 +1,6 @@
-// FIX: Import the 'fetch' function from the 'node-fetch' library
 const fetch = require('node-fetch');
 
-// This is the serverless function that will act as a secure proxy.
-// It receives the request from the frontend, adds the secret API key,
-// calls the Google API, and then returns the response.
-
 exports.handler = async function(event, context) {
-    // 1. Get the data (prompt) sent from the frontend
-    // Add a check to ensure event.body exists before parsing
     if (!event.body) {
         return {
             statusCode: 400,
@@ -16,7 +9,6 @@ exports.handler = async function(event, context) {
     }
     const { prompt } = JSON.parse(event.body);
 
-    // 2. Get the secret API key from the environment variables
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
@@ -35,13 +27,13 @@ exports.handler = async function(event, context) {
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
+    // FIX: Increased the maximum number of tokens for the output.
     const payload = {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, topP: 1.0, maxOutputTokens: 1024 }
+        generationConfig: { temperature: 0.7, topP: 1.0, maxOutputTokens: 2048 }
     };
 
     try {
-        // 3. Call the Google API from the server
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,7 +51,6 @@ exports.handler = async function(event, context) {
 
         const result = await response.json();
         
-        // 4. Send the result back to the frontend
         return {
             statusCode: 200,
             body: JSON.stringify(result)
