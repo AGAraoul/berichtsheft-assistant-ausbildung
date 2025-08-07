@@ -85,11 +85,6 @@
             const activities = activitiesInput.value.trim();
             const selectedGender = document.querySelector('input[name="gender"]:checked').value;
 
-            // Define gender-specific terms to be passed to the AI
-            const personNoun = selectedGender === 'weiblich' ? 'die Auszubildende' : 'der Auszubildende';
-            const personPronoun = selectedGender === 'weiblich' ? 'sie' : 'er';
-            const personPossessive = selectedGender === 'weiblich' ? 'ihre' : 'seine';
-
             if (!activities) {
                 outputBox.textContent = 'Bitte gib zuerst deine Tätigkeiten ein.';
                 outputBox.classList.add('text-red-500');
@@ -99,15 +94,19 @@
             outputBox.classList.remove('text-red-500');
             setLoadingState(true);
 
-            // --- FIX: Made the prompt much more explicit and clear for the AI ---
+            // --- FIX: The prompt is now much clearer and gives the AI more grammatical freedom ---
             const prompt = `Du bist ein Assistent, der Auszubildenden hilft, ihr Berichtsheft zu schreiben. Deine Aufgabe ist es, die vom Benutzer eingegebenen Tätigkeiten in einen professionellen, zusammenhängenden Bericht umzuwandeln.
+
 Wichtige Regeln:
-1.  **Schreibe den gesamten Bericht über eine ${selectedGender} Person.** Verwende dafür **ausschließlich** die folgenden Begriffe und beuge sie grammatikalisch korrekt: "${personNoun}" (als Substantiv), "${personPronoun}" (als Pronomen) und "${personPossessive}" (als Possessivpronomen).
-2.  Schreibe immer in der 3. Person Singular.
-3.  Schreibe in einem sachlichen, aber natürlichen Stil, so wie es ein Auszubildender tun würde. Es sollte kompetent klingen, aber nicht übertrieben formell.
-4.  Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für ${personNoun} mit...").
-5.  Der Output darf nur der reine Berichtstext sein, ohne zusätzliche Anmerkungen.
-Hier sind die Tätigkeiten: --- ${activities} ---`;
+1.  **Schreibe den gesamten Bericht in der 3. Person über eine ${selectedGender} Person.** Das bedeutet, du musst alle Artikel (der/die, den/die, dem/der), Pronomen (er/sie) und Possessivpronomen (sein/ihr) grammatikalisch korrekt an das Geschlecht anpassen.
+2.  **Stil:** Der Ton soll sachlich und kompetent sein, aber trotzdem natürlich klingen, so wie es ein Auszubildender selbst formulieren würde. Vermeide eine übertrieben formelle oder gestelzte Sprache.
+3.  **Einleitung:** Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet. Achte hier besonders auf die korrekte Grammatik. Beispiel für männlich: "Der ${day} begann für den Auszubildenden mit...". Beispiel für weiblich: "Der ${day} begann für die Auszubildende mit...".
+4.  **Output:** Der Output darf nur der reine Berichtstext sein, ohne zusätzliche Anmerkungen.
+
+Hier sind die Tätigkeiten:
+---
+${activities}
+---`;
 
             try {
                 const generatedText = await callBackendAPI(prompt);
