@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Changed loader color to green */
         .loader { border-top-color: #2ecc71; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -84,10 +83,9 @@
         generateBtn.addEventListener('click', async () => {
             const day = daySelect.value;
             const activities = activitiesInput.value.trim();
-            // Get the selected gender
             const selectedGender = document.querySelector('input[name="gender"]:checked').value;
 
-            // Define gender-specific terms
+            // Define gender-specific terms to be passed to the AI
             const personNoun = selectedGender === 'weiblich' ? 'die Auszubildende' : 'der Auszubildende';
             const personPronoun = selectedGender === 'weiblich' ? 'sie' : 'er';
             const personPossessive = selectedGender === 'weiblich' ? 'ihre' : 'seine';
@@ -101,14 +99,14 @@
             outputBox.classList.remove('text-red-500');
             setLoadingState(true);
 
-            // Update the prompt to include gender-specific instructions
+            // --- FIX: Made the prompt much more explicit and clear for the AI ---
             const prompt = `Du bist ein Assistent, der Auszubildenden hilft, ihr Berichtsheft zu schreiben. Deine Aufgabe ist es, die vom Benutzer eingegebenen Tätigkeiten in einen professionellen, zusammenhängenden Bericht umzuwandeln.
 Wichtige Regeln:
-1.  Verwende durchgehend die korrekten geschlechtsspezifischen Begriffe für eine weibliche oder männliche Person, je nach Angabe.
-2.  Schreibe in einem sachlichen, aber natürlichen Stil, so wie es ein Auszubildender tun würde. Es sollte kompetent klingen, aber nicht übertrieben formell.
-3.  Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für ...").
-4.  Schreibe in der 3. Person
-5.  Der Output darf nur der reine Berichtstext sein.
+1.  **Schreibe den gesamten Bericht über eine ${selectedGender} Person.** Verwende dafür **ausschließlich** die folgenden Begriffe und beuge sie grammatikalisch korrekt: "${personNoun}" (als Substantiv), "${personPronoun}" (als Pronomen) und "${personPossessive}" (als Possessivpronomen).
+2.  Schreibe immer in der 3. Person Singular.
+3.  Schreibe in einem sachlichen, aber natürlichen Stil, so wie es ein Auszubildender tun würde. Es sollte kompetent klingen, aber nicht übertrieben formell.
+4.  Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für ${personNoun} mit...").
+5.  Der Output darf nur der reine Berichtstext sein, ohne zusätzliche Anmerkungen.
 Hier sind die Tätigkeiten: --- ${activities} ---`;
 
             try {
@@ -142,12 +140,8 @@ Hier sind die Tätigkeiten: --- ${activities} ---`;
             loader.classList.toggle('hidden', !isLoading);
         }
 
-        /**
-         * Calls our own backend function, which will then call the Google API securely.
-         */
         async function callBackendAPI(prompt) {
             const apiUrl = '/.netlify/functions/generate-bericht';
-
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
