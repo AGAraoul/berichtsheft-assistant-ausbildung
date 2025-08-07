@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berichtsheft-Assistent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .loader { border-top-color: #3498db; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Berichtsheft-Assistent</h1>
+            <p class="text-gray-500 mt-2">Vereinfache das Schreiben deiner Berichte.</p>
+        </div>
+        <div class="space-y-6">
+            <div>
+                <label for="day-select" class="block text-sm font-medium text-gray-700 mb-1">Wochentag auswählen</label>
+                <select id="day-select" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <option>Montag</option>
+                    <option>Dienstag</option>
+                    <option>Mittwoch</option>
+                    <option>Donnerstag</option>
+                    <option>Freitag</option>
+                </select>
+            </div>
+            <div>
+                <label for="activities-input" class="block text-sm font-medium text-gray-700 mb-1">Heutige Tätigkeiten</label>
+                <textarea id="activities-input" rows="8" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Gib hier deine Tätigkeiten ein..."></textarea>
+            </div>
+            <button id="generate-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 ease-in-out flex items-center justify-center">
+                <span id="btn-text">Bericht erstellen</span>
+                <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
+            </button>
+        </div>
+        <div id="output-container" class="mt-8 hidden">
+            <div class="flex justify-between items-center mb-2">
+                 <h2 class="text-xl font-semibold text-gray-800">Erstellter Bericht</h2>
+                 <button id="copy-btn" class="bg-gray-200 text-gray-700 text-sm font-medium py-1 px-3 rounded-lg hover:bg-gray-300 transition">Kopieren</button>
+            </div>
+            <div id="output-box" class="w-full p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[150px] whitespace-pre-wrap text-gray-700"></div>
+            <div id="copy-success" class="text-green-600 text-sm mt-2 text-right hidden">Text wurde kopiert!</div>
+        </div>
+    </div>
+    <script>
+        const daySelect = document.getElementById('day-select');
+        const activitiesInput = document.getElementById('activities-input');
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const outputContainer = document.getElementById('output-container');
+        const outputBox = document.getElementById('output-box');
+        const copyBtn = document.getElementById('copy-btn');
+        const copySuccess = document.getElementById('copy-success');
+
+        generateBtn.addEventListener('click', async () => {
+            const day = daySelect.value;
+            const activities = activitiesInput.value.trim();
+            if (!activities) {
+                outputBox.textContent = 'Bitte gib zuerst deine Tätigkeiten ein.';
+                outputBox.classList.add('text-red-500');
+                outputContainer.classList.remove('hidden');
+                return;
+            }
+            outputBox.classList.remove('text-red-500');
+            setLoadingState(true);
+
+            const prompt = `Du bist ein Assistent, der Auszubildenden hilft, ihr Berichtsheft zu schreiben. Deine Aufgabe ist es, die vom Benutzer eingegebenen Tätigkeiten in einen professionellen, zusammenhängenden Bericht umzuwandeln. Schreibe in einem sachlichen, aber natürlichen Stil, so wie es ein Auszubildender tun würde. Es sollte kompetent klingen, aber nicht übertrieben formell. Formuliere einen flüssigen Einleitungssatz, der den Wochentag (${day}) kreativ einbindet (z.B. "Der ${day} begann für den Auszubildenden mit..."). Schreibe immer in der 3. Person Singular. Der Output darf nur der reine Berichtstext sein. Hier sind die Tätigkeiten: --- ${activities} ---`;
+
+            try {
+                const generatedText = await callBackendAPI(prompt);
+                outputBox.textContent = generatedText;
+                outputContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error("Fehler bei der API-Anfrage:", error);
+                outputBox.textContent = `Ein Fehler ist aufgetreten: ${error.message}`;
+                outputBox.classList.add('text-red-500');
+                outputContainer.classList.remove('hidden');
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = outputBox.textContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            copySuccess.classList.remove('hidden');
+            setTimeout(() => copySuccess.classList.add('hidden'), 2000);
+        });
+
+        function setLoadingState(isLoading) {
+            generateBtn.disabled = isLoading;
+            btnText.classList.toggle('hidden', isLoading);
+            loader.classList.toggle('hidden', !isLoading);
+        }
+
+        /**
+         * Calls our own backend function, which will then call the Google API securely.
+         */
+        async function callBackendAPI(prompt) {
+            // The URL now points to our own serverless function.
+            // Netlify automatically makes functions in netlify/functions available at this path.
+            const apiUrl = '/.netlify/functions/generate-bericht';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt }) // Send the prompt in the request body
+            });
+
+            if (!response.ok) {
+                const errorResult = await response.json();
+                throw new Error(errorResult.error || 'Unbekannter Fehler vom Server');
+            }
+
+            const result = await response.json();
+
+            // Extract the text from the response structure
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                return result.candidates[0].content.parts[0].text;
+            } else {
+                const finishReason = result.candidates?.[0]?.finishReason;
+                if (finishReason) {
+                    throw new Error(`Texterstellung gestoppt. Grund: ${finishReason}.`);
+                }
+                throw new Error("Ungültige oder leere Antwort von der API erhalten.");
+            }
+        }
+    </script>
+</body>
+</html>

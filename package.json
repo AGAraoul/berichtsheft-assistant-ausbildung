@@ -1,0 +1,9 @@
+{
+  "name": "berichtsheft-assistent-backend",
+  "version": "1.0.0",
+  "description": "Backend function for the report helper",
+  "main": "netlify/functions/generate-bericht.js",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}

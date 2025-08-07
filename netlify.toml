@@ -1,0 +1,11 @@
+# Konfigurationsdatei für Netlify
+# Sagt Netlify, wo die Backend-Funktionen liegen
+
+[build]
+  # Das ist der Ordner, den Netlify nach dem "Build" online stellt.
+  # Da wir nur statische Dateien haben, ist es der Hauptordner.
+  publish = "."
+
+[functions]
+  # Das ist der Ordner, in dem Netlify nach den Backend-Funktionen sucht.
+  directory = "netlify/functions/"
